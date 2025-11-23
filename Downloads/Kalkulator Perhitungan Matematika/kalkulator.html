@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Kalkulator</title>
+
+<style>
+    body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #fce4ec;
+        margin: 0;
+    }
+
+    .calc-container {
+        background: #2a2a2a;
+        padding: 25px;
+        width: 320px;
+        border-radius: 18px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    }
+
+    /* Display Atas */
+    #display {
+        width: 92%;
+        height: 65px;
+        margin-left: 10px;
+        margin-right: 10px;
+        margin-bottom: 15px;
+        text-align: right;
+        padding: 12px;
+        background: #ffffff;
+        border-radius: 10px;
+        border: 2px solid #e3a0b5;
+        font-size: 28px;
+        font-weight: bold;
+        color: #333;
+        box-sizing: border-box;
+    }
+
+    /* Button Style */
+    button {
+        width: 65px;
+        height: 50px;
+        margin: 5px;
+        font-size: 18px;
+        font-weight: bold;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: .2s;
+    }
+
+    button:hover {
+        transform: scale(1.08);
+        opacity: .85;
+    }
+
+    /* Warna kategori tombol */
+    .num { background: #ffd1e8; color: #333; }
+    .op { background: #b00872; color: #fff; }
+    .clear { background: #da28cb; color: #fff; }
+    .mem { background: #883a6f; color: #fff; font-size: 14px; }
+    
+    .equals {
+        background: #601853aa;
+        color: #fff;
+        font-size: 20px;
+    }
+
+    /* History Box */
+    .history {
+        width: 92%;
+        height: 90px;
+        margin: 12px auto 0 auto;
+        background: #ffffff;
+        padding: 8px;
+        font-size: 14px;
+        border-radius: 10px;
+        border: 2px solid #e3a0b5;
+        overflow-y: auto;
+        box-sizing: border-box;
+        text-align: right;
+        font-family: monospace;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="calc-container">
+
+    <input type="text" id="display" disabled>
+
+    <div>
+        <button class="mem" onclick="memoryClear()">MC</button>
+        <button class="mem" onclick="memoryRecall()">MR</button>
+        <button class="mem" onclick="memoryAdd()">M+</button>
+        <button class="mem" onclick="memorySub()">M-</button>
+    </div>
+
+    <div>
+        <button class="clear" onclick="clearEntry()">CE</button>
+        <button class="clear" onclick="clearAll()">C</button>
+        <button class="op" onclick="press('/')">÷</button>
+        <button class="op" onclick="press('*')">×</button>
+    </div>
+
+    <div>
+        <button class="num" onclick="press('7')">7</button>
+        <button class="num" onclick="press('8')">8</button>
+        <button class="num" onclick="press('9')">9</button>
+        <button class="op" onclick="press('-')">−</button>
+    </div>
+
+    <div>
+        <button class="num" onclick="press('4')">4</button>
+        <button class="num" onclick="press('5')">5</button>
+        <button class="num" onclick="press('6')">6</button>
+        <button class="op" onclick="press('+')">+</button>
+    </div>
+
+    <div>
+        <button class="num" onclick="press('1')">1</button>
+        <button class="num" onclick="press('2')">2</button>
+        <button class="num" onclick="press('3')">3</button>
+        <button class="equals" onclick="calculate()">=</button>
+    </div>
+
+    <div>
+        <button class="num" onclick="press('0')" style="width: 140px;">0</button>
+        <button class="num" onclick="press('.')">.</button>
+    </div>
+
+    <div class="history" id="history"></div>
+
+</div>
+
+
+<script>
+let expression = "";
+let memory = 0;
+let history = [];
+
+const display = document.getElementById("display");
+const historyBox = document.getElementById("history");
+
+function press(val) {
+    expression += val;
+    display.value = expression;
+}
+
+function clearEntry() {
+    expression = expression.slice(0, -1);
+    display.value = expression;
+}
+
+function clearAll() {
+    expression = "";
+    display.value = "";
+}
+
+function calculate() {
+    try {
+        let result = eval(expression);
+        if (!isFinite(result)) {
+            display.value = "Error";
+            expression = "";
+            return;
+        }
+
+        history.unshift(`${expression} = ${result}`);
+        history = history.slice(0, 5);
+        showHistory();
+
+        display.value = result;
+        expression = result.toString();
+    } catch {
+        display.value = "Error";
+        expression = "";
+    }
+}
+
+function showHistory() {
+    historyBox.innerHTML = history.map(item => `<div>${item}</div>`).join("");
+}
+
+function memoryAdd() { memory += Number(display.value); }
+function memorySub() { memory -= Number(display.value); }
+function memoryRecall() { display.value = memory; expression = memory.toString(); }
+function memoryClear() { memory = 0; }
+
+document.addEventListener("keydown", (e) => {
+    if (!isNaN(e.key) || "+-*/.".includes(e.key)) press(e.key);
+    if (e.key === "Enter") calculate();
+    if (e.key === "Backspace") clearEntry();
+    if (e.key === "Escape") clearAll();
+});
+</script>
+
+</body>
+</html>
